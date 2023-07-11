@@ -27,12 +27,13 @@ def connect():
     except Exception:
         raise Exception("Database connection failed")
 
-def implement():
+def implement(sql):
     '''Execute SQL statement'''
     db = connect()
     cursor = db.cursor()
     for i in range(1):
-        sql = """SELECT count(datetime) FROM dl_hash """
+        if sql== '':
+            sql = """SELECT count(datetime) FROM dl_hash """
         try:
             cursor.execute(sql)
             result = cursor.fetchone()
