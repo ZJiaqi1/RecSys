@@ -13,7 +13,7 @@ mysql_db = cfg["mysql"]["database"]
 mysql_charset = cfg["mysql"]["charset"]
 
 def connect():
-    '''连接MySQL数据库'''
+    '''Connect to Mysql database'''
     try:
         db = pymysql.connect(
             host=mysql_host,
@@ -25,22 +25,23 @@ def connect():
         )
         return db
     except Exception:
-        raise Exception("数据库连接失败")
+        raise Exception("Database connection failed")
 
-def implement():
-    '''执行SQL语句'''
+def implement(sql):
+    '''Execute SQL statement'''
     db = connect()
     cursor = db.cursor()
     for i in range(1):
-        sql = """SELECT count(datetime) FROM dl_hash """
+        if sql== '':
+            sql = """SELECT count(datetime) FROM dl_hash """
         try:
             cursor.execute(sql)
             result = cursor.fetchone()
             db.commit()
-            print('查询结果：', result)
+            print('Search result：', result)
         except Exception:
             db.rollback()
-            print("查询失败")
+            print("Query failed")
 
     cursor.close()
     db.close()
