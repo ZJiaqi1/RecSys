@@ -53,3 +53,10 @@ def get_recommendations(resource_id, cosine_sim=cosine_sim, data=data, indices=i
 
 # Test the function with a random resource_id
 #get_recommendations('test')
+
+def get_recommendedResults(user_id):
+    sql = '''
+    select resource_id from dl_user_resources where user_id = '{}' order by datetime desc LIMIT 1
+    '''.format(user_id)
+    resourceData = pd.read_sql(sql, db).iloc[0, 0]
+    return get_recommendations(resourceData)
