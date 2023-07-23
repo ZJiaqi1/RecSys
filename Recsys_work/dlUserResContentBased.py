@@ -5,10 +5,15 @@ from sklearn.metrics.pairwise import linear_kernel
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 
+# ----------------------------------------
+# 这个部分用于测试对定义对于单一用户的基于内容的推荐方法
+# 最后可以用一个用户的id来测试，可以展示相关度最高的10个资源
+# ----------------------------------------
+
 # Load the dataset
 db = mysql.connect()
 sql='''
-select * from dl_user_resources limit 0,3000
+select * from dl_user_resources_train limit 0,8000
 '''
 data = pd.read_sql(sql,db)
 
@@ -35,21 +40,23 @@ cosine_sim.shape, indices.head()
 def get_recommendations(resource_id, cosine_sim=cosine_sim, data=data, indices=indices):
     # Get the index of the resource that matches the resource_id
     idx = indices[resource_id]
-
     # Get the pairwsie similarity scores of all resources with that resource
     sim_scores = list(enumerate(cosine_sim[idx]))
-
     # Sort the resources based on the similarity scores
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-
     # Get the scores of the 10 most similar resources
     sim_scores = sim_scores[1:11]
-
     # Get the resource indices
     resource_indices = [i[0] for i in sim_scores]
-
     # Return the top 10 most similar resources
     return data['title'].iloc[resource_indices]
 
 # Test the function with a random resource_id
 #get_recommendations('test')
+
+def get_recommendedResults(user_id):
+    sql = '''
+    select resource_id from dl_user_resources_train where user_id = '{}' order by datetime desc LIMIT 1
+    '''.format(user_id)
+    resourceData = pd.read_sql(sql, db).iloc[0, 0]
+    return get_recommendations(resourceData)

@@ -3,10 +3,14 @@ import numpy as np
 import pandas as pd
 import mysql
 
+# ----------------------------------------
+# 这个部分用于测试对定义协同过滤算法
+# ----------------------------------------
+
 # Load the dataset
 db = mysql.connect()
 sql='''
-select * from dl_user_resources limit 0,3000
+select * from dl_user_resources_train limit 0,8000
 '''
 data = pd.read_sql(sql,db)
 # Display the first few rows

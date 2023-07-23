@@ -126,11 +126,6 @@ accuracy1 = hits / total
 accuracy1
 
 
-
-
-
-
-
 # Compute the popularity of each resource
 resource_popularity = train_data['resource_id'].value_counts()
 
