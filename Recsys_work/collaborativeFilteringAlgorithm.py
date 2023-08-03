@@ -4,6 +4,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 
 # ----------------------------------------
 # 这个部分用于评估基于内容的推荐方法
+# Content-Based Recommendation Methods
 # ----------------------------------------
 
 db = mysql.connect()
@@ -26,7 +27,7 @@ data_test = pd.read_sql(sql_test,db)
 train_grouped = data_train.groupby(['user_id', 'resource_id']).size().reset_index(name='counts')
 predictions = train_grouped.sort_values('counts', ascending=False).drop_duplicates(['user_id'])
 # 生成了每个用户最常使用的资源作为预测结果
-# We only need the user_id and resource_id columns for the predictions.
+# only need the user_id and resource_id columns for the predictions.
 predictions = predictions[['user_id', 'resource_id']]
 predictions.head()
 
