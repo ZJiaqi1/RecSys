@@ -97,3 +97,35 @@ plt.axis('off')
 plt.title('Resource Description Word Cloud')
 plt.tight_layout()
 plt.show()
+
+# Basic descriptive statistics for the dataset
+desc_stats = data.describe(include='all').transpose()
+desc_stats[['count', 'unique', 'top', 'freq']]
+
+# 用户的活跃度分析
+# Analyzing user activity
+user_activity = data['user_id'].value_counts()
+# Descriptive statistics for user activity
+user_activity_desc = user_activity.describe()
+# Displaying the top 10 most active users and the activity statistics
+top_10_users = user_activity.head(10)
+print(user_activity_desc, top_10_users)
+
+# 资源的受欢迎程度
+# Analyzing resource popularity
+resource_popularity = data['resource_id'].value_counts()
+# Descriptive statistics for resource popularity
+resource_popularity_desc = resource_popularity.describe()
+# Displaying the top 10 most popular resources and the popularity statistics
+top_10_resources = resource_popularity.head(10)
+print(resource_popularity_desc, top_10_resources)
+
+#按国家和职业的活跃度分析
+# Analyzing activity by country
+country_activity = data['country_id'].value_counts()
+# Analyzing activity by career
+career_activity = data['career_id'].value_counts()
+# Displaying the top 5 most active countries and careers
+top_5_countries = country_activity.head(5)
+top_5_careers = career_activity.head(5)
+print(top_5_countries, top_5_careers)
