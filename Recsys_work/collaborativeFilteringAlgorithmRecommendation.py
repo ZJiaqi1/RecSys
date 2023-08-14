@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
-# 协同过滤算法根据一个人的id推荐20个title
+# 协同过滤算法根据一个人的id推荐10个推荐的资源
 
 db = mysql.connect()
 # user分析
@@ -54,47 +54,29 @@ def generate_recommendations(user_index, data_sparse, model_knn, n_recommendatio
 
     return items_to_recommend
 
-# Generate recommendations for the first 10 users
-user_indices = list(range(10))
+# Generate recommendations for the first 4000 users
+user_indices = list(range(4000))
 n_recommendations = 10
-recommendations = {}
+recommendations_ids = {}  # This dictionary will hold the user_id and their recommended resource_ids
 
 for user_index in user_indices:
-    recommendations[user_index] = generate_recommendations(user_index, data_sparse, model_knn, n_recommendations)
-
-recommendations
-
-# Map the item indices to their original IDs
-recommendations_ids = {}
-
-# Create a dictionary for mapping resource_id to title
-resource_id_to_title = pd.Series(data.meta_title.values,index=data.resource_id).to_dict()
-
-# Map the item indices to their original IDs and title
-recommendations_ids_titles = {}
-
-for user_id, recommended_items_ids in recommendations_ids.items():
-    recommended_items_titles = [resource_id_to_title[item_id] for item_id in recommended_items_ids]
-    recommendations_ids_titles[user_id] = recommended_items_titles
-print(recommendations_ids_titles)
-for user_index, recommended_items in recommendations.items():
+    recommended_items = generate_recommendations(user_index, data_sparse, model_knn, n_recommendations)
     recommended_items_ids = [item_u[item_index] for item_index in recommended_items]
     recommendations_ids[user_u[user_index]] = recommended_items_ids
-print(recommendations_ids)
+resource_id_to_title = pd.Series(data.meta_title.values, index=data.resource_id).to_dict()
 
-def recommend_for_user(user_id, user_u, item_u, data_sparse, model_knn, n_recommendations):
-    # Map the user_id to the user index
-    user_index = user_u.index(user_id)
+csv_data = []
 
-    # Generate recommendations for the user
-    recommended_items = generate_recommendations(user_index, data_sparse, model_knn, n_recommendations)
+for user_id, resource_ids in recommendations_ids.items():
+    row = {'user_id': user_id}
+    for i, resource_id in enumerate(resource_ids, 1):
+        row[f'resource_id_{i}'] = resource_id
+        row[f'title_{i}'] = resource_id_to_title[resource_id]
+    csv_data.append(row)
 
-    # Map the item indices to their original IDs and titles
-    recommended_items_ids = [item_u[item_index] for item_index in recommended_items]
-    recommended_items_titles = [resource_id_to_title[item_id] for item_id in recommended_items_ids]
+# Convert the data to a pandas DataFrame
+df = pd.DataFrame(csv_data)
 
-    return recommended_items_ids, recommended_items_titles
-
-# Test the function with a user_id
-user_id = 'c172cce0bb3f5984f0e2777794082ea9'
-print(recommend_for_user(user_id, user_u, item_u, data_sparse, model_knn, n_recommendations=20))
+# Write the DataFrame to a CSV file
+output_path = '/Users/jiaqi_zheng/Desktop/Coding/python/Recsys_git/Recsys_work/resource/collaborativeFilteringAlgorithmRecommendation.csv'  # Change this path to where you want to save the CSV
+df.to_csv(output_path, index=False)

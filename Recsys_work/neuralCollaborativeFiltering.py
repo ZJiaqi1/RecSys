@@ -1,8 +1,6 @@
 import pandas as pd
 import mysql
 import numpy as np
-import json
-from tqdm import tqdm
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from keras.models import Model
@@ -13,7 +11,7 @@ from keras.optimizers import Adam
 # Load the dataset
 db = mysql.connect()
 sql='''
-select * from dl_user_resources
+select * from dl_user_resources_train
 '''
 data = pd.read_sql(sql,db)
 # Check for missing values
@@ -69,7 +67,7 @@ user_embeddings = model.get_layer('user_embedding').get_weights()[0]
 resource_embeddings = model.get_layer('resource_embedding').get_weights()[0]
 # Create a dictionary to hold the recommendations
 recommendations = {}
-for user_index in tqdm(range(n_users)):  # Wrap the range with tqdm
+for user_index in range(n_users):  # Assuming tqdm has been removed for simplicity
     # Get the original user_id from the user_index
     user_id = user_encoder.inverse_transform([user_index])[0]
     # Compute the dot product between the user embeddings and resource embeddings
@@ -80,6 +78,17 @@ for user_index in tqdm(range(n_users)):  # Wrap the range with tqdm
     resource_ids = resource_encoder.inverse_transform(resource_indices)
     # Add the recommendations to the dictionary
     recommendations[user_id] = list(resource_ids)
-# Write the recommendations to a JSON file
-with open('resource/recommendations.json', 'w') as f:
-    json.dump(recommendations, f)
+# Convert the recommendations dictionary to a format suitable for CSV
+csv_data = []
+for user, resource_ids in recommendations.items():
+    row = {'user_id': user}
+    for i, resource_id in enumerate(resource_ids, 1):
+        row[f'resource_id_{i}'] = resource_id
+    csv_data.append(row)
+
+# Convert the data to a pandas DataFrame
+df = pd.DataFrame(csv_data)
+
+# Write the DataFrame to a CSV file
+output_path = '/Users/jiaqi_zheng/Desktop/Coding/python/Recsys_git/Recsys_work/resource/neuralCollaborativeFiltering.csv'
+df.to_csv(output_path, index=False)
