@@ -1,14 +1,13 @@
 import mysql
 import pandas as pd
 import re
-import json
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # 基于内容的推荐算法
 # Load the dataset
 db = mysql.connect()
 sql='''
-select * from dl_user_resources
+select * from dl_user_resources_train
 '''
 data = pd.read_sql(sql,db)
 
@@ -71,7 +70,7 @@ tfidf_matrix.shape
 from sklearn.metrics.pairwise import linear_kernel
 
 # 选择前1000个独立的用户
-selected_users = data['user_id'].drop_duplicates().head(1000).tolist()
+selected_users = data['user_id'].drop_duplicates().head(4000).tolist()
 
 # 为每个用户推荐资源
 recommendations_for_first_10 = {}
@@ -95,14 +94,20 @@ for user in selected_users:
     recommendations_for_first_10[user] = recommended_resources[['resource_id', 'title']].to_dict(orient='records')
 
 recommendations_for_first_10
+csv_data = []
+for user, recommendations in recommendations_for_first_10.items():
+    row = {'user': user}
+    for i, rec in enumerate(recommendations, 1):
+        row[f'resource_id_{i}'] = rec['resource_id']
+        row[f'title_{i}'] = rec['title']
+    csv_data.append(row)
 
+# 创建一个DataFrame
+df = pd.DataFrame(csv_data)
 
-# 将推荐结果写入JSON文件
-output_path = "/Users/jiaqi_zheng/Desktop/Coding/python/Recsys_git/Recsys_work/resource/recommendationsCBRA.json"
-with open(output_path, 'w') as outfile:
-    json.dump(recommendations_for_first_10, outfile)
-
-output_path
+# 保存为CSV文件
+output_path = "/Users/jiaqi_zheng/Desktop/Coding/python/Recsys_git/Recsys_work/resource/recommendationsCBRA.csv"
+df.to_csv(output_path, index=False)
 
 
 
