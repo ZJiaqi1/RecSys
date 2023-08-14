@@ -1,6 +1,7 @@
 import mysql
 import pandas as pd
 import re
+from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # 基于内容的推荐算法
@@ -69,13 +70,13 @@ tfidf_matrix.shape
 
 from sklearn.metrics.pairwise import linear_kernel
 
-# 选择前1000个独立的用户
+# 选择前4000个独立的用户
 selected_users = data['user_id'].drop_duplicates().head(4000).tolist()
 
 # 为每个用户推荐资源
 recommendations_for_first_10 = {}
 
-for user in selected_users:
+for user in tqdm(selected_users, desc="User Progress"):
     # 获取该用户互动过的资源的索引
     user_indices = data[data['user_id'] == user].index.tolist()
 
