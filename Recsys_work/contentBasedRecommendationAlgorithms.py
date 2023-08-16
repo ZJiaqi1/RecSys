@@ -1,16 +1,16 @@
 import mysql
 import pandas as pd
 import re
+from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # 基于内容的推荐算法
 # Load the dataset
 db = mysql.connect()
-sql='''
+sql = '''
 select * from dl_user_resources_train
 '''
-data = pd.read_sql(sql,db)
-
+data = pd.read_sql(sql, db)
 # 提供一个简单的停用词列表
 simple_stop_words = {
     'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've",
@@ -25,6 +25,8 @@ simple_stop_words = {
     'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's',
     't', 'can', 'will', 'just', 'don', "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y'
 }
+
+
 def preprocess_text_without_lemmatization(text):
     """
     不进行词形还原的文本预处理函数:
@@ -56,63 +58,42 @@ def preprocess_text_without_lemmatization(text):
 data['title'] = data['title'].apply(preprocess_text_without_lemmatization)
 data['meta_title'] = data['meta_title'].apply(preprocess_text_without_lemmatization)
 data['mata_description'] = data['mata_description'].apply(preprocess_text_without_lemmatization)
-
 # 显示处理后的前几行数据
 data[['title', 'meta_title', 'mata_description']].head()
-
 # 使用TF-IDF向量化器
 vectorizer = TfidfVectorizer(max_features=5000)
 data['combined_text'] = data['title'] + ' ' + data['meta_title'] + ' ' + data['mata_description']
 tfidf_matrix = vectorizer.fit_transform(data['combined_text'])
-
 tfidf_matrix.shape
-
 from sklearn.metrics.pairwise import linear_kernel
 
-# 选择前1000个独立的用户
+# 选择前4000个独立的用户
 selected_users = data['user_id'].drop_duplicates().head(4000).tolist()
-
 # 为每个用户推荐资源
 recommendations_for_first_10 = {}
-
-for user in selected_users:
+for user in tqdm(selected_users, desc="User Progress"):
     # 获取该用户互动过的资源的索引
     user_indices = data[data['user_id'] == user].index.tolist()
-
     # 计算这些资源与其他资源的相似度
     cosine_similarities = sum(
         [linear_kernel(tfidf_matrix[index:index + 1], tfidf_matrix).flatten() for index in user_indices])
-
     # 获取相似度得分最高的资源
     similar_indices = cosine_similarities.argsort()[-(10 + len(user_indices)):][::-1]
-
     # 过滤掉用户已经互动过的资源
     recommended_indices = [i for i in similar_indices if i not in user_indices][:10]
-
     recommended_resources = data.iloc[recommended_indices]
-
     recommendations_for_first_10[user] = recommended_resources[['resource_id', 'title']].to_dict(orient='records')
-
 recommendations_for_first_10
 csv_data = []
 for user, recommendations in recommendations_for_first_10.items():
-    row = {'user': user}
+    row = {'user_id': user}
     for i, rec in enumerate(recommendations, 1):
-        row[f'resource_id_{i}'] = rec['resource_id']
+        row[f'recommended_resource_{i}'] = rec['resource_id']
         row[f'title_{i}'] = rec['title']
     csv_data.append(row)
-
 # 创建一个DataFrame
 df = pd.DataFrame(csv_data)
 
 # 保存为CSV文件
 output_path = "/Users/jiaqi_zheng/Desktop/Coding/python/Recsys_git/Recsys_work/resource/recommendationsCBRA.csv"
 df.to_csv(output_path, index=False)
-
-
-
-
-
-
-
-
