@@ -86,9 +86,9 @@ for user in tqdm(selected_users, desc="User Progress"):
 recommendations_for_first_10
 csv_data = []
 for user, recommendations in recommendations_for_first_10.items():
-    row = {'user': user}
+    row = {'user_id': user}
     for i, rec in enumerate(recommendations, 1):
-        row[f'resource_id_{i}'] = rec['resource_id']
+        row[f'recommended_resource_{i}'] = rec['resource_id']
         row[f'title_{i}'] = rec['title']
     csv_data.append(row)
 # 创建一个DataFrame

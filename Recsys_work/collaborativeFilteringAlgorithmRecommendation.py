@@ -4,7 +4,7 @@ from tqdm import tqdm
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
-# 协同过滤算法根据一个人的id推荐10个推荐的资源
+# 协同过滤算法推荐10个推荐的资源
 
 db = mysql.connect()
 # user分析
@@ -67,7 +67,7 @@ for user_idx, (user_id, resource_ids) in tqdm(enumerate(recommendations_ids.item
                                               desc="CSV Construction"):
     row = {'user_id': user_id}
     for i, resource_id in enumerate(resource_ids, 1):
-        row[f'resource_id_{i}'] = resource_id
+        row[f'recommended_resource_{i}'] = resource_id
         row[f'title_{i}'] = resource_id_to_title[resource_id]
     csv_data.append(row)
 # Convert the data to a pandas DataFrame

@@ -83,7 +83,7 @@ csv_data = []
 for user, resource_ids in recommendations.items():
     row = {'user_id': user}
     for i, resource_id in enumerate(resource_ids, 1):
-        row[f'resource_id_{i}'] = resource_id
+        row[f'recommended_resource{i}'] = resource_id
     csv_data.append(row)
 
 # Convert the data to a pandas DataFrame
