@@ -13,13 +13,13 @@ def recommendation():
     initial_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024  # 转换为MB
     start_time = time.time()
     # 协同过滤算法
-    # import collaborativeFilteringAlgorithmRecommendation
-    # collaborativeFilteringAlgorithmRecommendation
-    # current_function = "Collaborative_Filtering_Algorithm_Recommendation"
+    import collaborativeFilteringAlgorithmRecommendation
+    collaborativeFilteringAlgorithmRecommendation
+    current_function = "Collaborative_Filtering_Algorithm_Recommendation"
     # 神经协同过滤系统
-    import neuralCollaborativeFiltering
-    neuralCollaborativeFiltering
-    current_function = "Neural_Collaborative_Filtering"
+    # import neuralCollaborativeFiltering
+    # neuralCollaborativeFiltering
+    # current_function = "Neural_Collaborative_Filtering"
     # 基于内容的推荐算法
     # import contentBasedRecommendationAlgorithms
     # contentBasedRecommendationAlgorithms
@@ -41,13 +41,5 @@ def recommendation():
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow([current_datetime, current_function, execution_time, peak_memory])
 
-import mysql
-import userHashedAnalyse
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
-    #print(mysql.implement())
-    userHashedAnalyse()
-
 if __name__ == '__main__':
-    randomShuffle()
+    recommendation()
