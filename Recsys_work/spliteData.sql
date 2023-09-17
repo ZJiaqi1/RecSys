@@ -76,16 +76,43 @@ from ((`final`.`test_set` `dl` join `final`.`resources_hashed` `res`
        on ((`dl`.`resource_id` = `res`.`resource_id`))) join `final`.`user_hashed` `user`
       on ((`dl`.`user_id` = `user`.`user_id`)));
 
-select `dl`.`datetime`          AS `datetime`,
-       `dl`.`user_id`           AS `user_id`,
-       `user`.`country_id`      AS `country_id`,
-       `user`.`career_id`       AS `career_id`,
-       `dl`.`resource_id`       AS `resource_id`,
-       `res`.`title`            AS `title`,
-       `res`.`meta_title`       AS `meta_title`,
-       `res`.`mata_description` AS `mata_description`,
-       `res`.`date_added`       AS `date_added`,
-       `res`.`date_updated`     AS `date_updated`
-from ((`final`.`train_set` `dl` join `final`.`resources_hashed` `res`
-       on ((`dl`.`resource_id` = `res`.`resource_id`))) join `final`.`user_hashed` `user`
-      on ((`dl`.`user_id` = `user`.`user_id`)));
+CREATE TABLE dl_user_resources_test
+(
+    datetime         datetime      null,
+    user_id          varchar(50)   null,
+    country_id       int           null,
+    career_id        int           null,
+    resource_id      varchar(50)   null,
+    title            varchar(1000) null,
+    meta_title       varchar(1000) null,
+    mata_description varchar(2000) null,
+    date_added       datetime      null,
+    date_updated     datetime      null
+);
+INSERT INTO dl_user_resources_test
+(
+    datetime,
+    user_id,
+    country_id,
+    career_id,
+    resource_id,
+    title,
+    meta_title,
+    mata_description,
+    date_added,
+    date_updated
+)
+SELECT
+    dl.datetime          AS datetime,
+    dl.user_id           AS user_id,
+    user.country_id      AS country_id,
+    user.career_id       AS career_id,
+    dl.resource_id       AS resource_id,
+    res.title            AS title,
+    res.meta_title       AS meta_title,
+    res.mata_description AS mata_description,
+    res.date_added       AS date_added,
+    res.date_updated     AS date_updated
+FROM
+    ((final.train_set dl JOIN final.resources_hashed res ON (dl.resource_id = res.resource_id))
+    JOIN final.user_hashed user ON (dl.user_id = user.user_id));
