@@ -44,22 +44,22 @@ from
 where r >= 0.8;
 
 -- 存入新的训练集表中
-create table train_set as select *
-from
-(
-  select *, rand() as r
-  from dl_hash
-) t
-where r < 0.8;
+CREATE TABLE train_set AS
+SELECT T1.*
+FROM dl_hash T1
+LEFT JOIN test_set T2
+ON T1.user_id = T2.user_id AND T1.datetime = T2.datetime
+WHERE T2.user_id IS NULL;
 
-create table test_set as
-select *
-from
-(
-  select *, rand() as r
-  from dl_hash
-) t
-where r >= 0.8;
+CREATE TABLE test_set AS
+SELECT T1.*
+FROM dl_hash T1
+JOIN (
+    SELECT user_id, MAX(datetime) AS latest_time
+    FROM dl_hash
+    GROUP BY user_id
+) T2
+ON T1.user_id = T2.user_id AND T1.datetime = T2.latest_time;
 
 -- 创建视图
 select `dl`.`datetime`          AS `datetime`,
